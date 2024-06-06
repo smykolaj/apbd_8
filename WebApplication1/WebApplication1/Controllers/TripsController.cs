@@ -9,12 +9,10 @@ namespace WebApplication1.Controllers;
 public class TripsController : ControllerBase
 
 {
-    private readonly IClientsRepository _clientsRepository;
     private readonly ITripsRepository _tripsRepository;
 
-    public TripsController(IClientsRepository clientsRepository, ITripsRepository tripsRepository)
+    public TripsController( ITripsRepository tripsRepository)
     {
-        _clientsRepository = clientsRepository;
         _tripsRepository = tripsRepository;
     }
 
@@ -34,21 +32,6 @@ public class TripsController : ControllerBase
         return Ok(output);
     }
 
-    [HttpDelete("{clientId}")]
-    public async Task<IActionResult> DeleteClientById(int clientId)
-    {
-        try
-        {
-           await _clientsRepository.DeleteClient(clientId);
-
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
-
-        return Ok();
-
-    }
+    
 
 }
