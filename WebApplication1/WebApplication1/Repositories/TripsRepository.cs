@@ -8,10 +8,12 @@ public class TripsRepository : ITripsRepository
 {
 
     private readonly ApbdContext _context;
+    private readonly IClientsRepository _clientsRepository;
 
-    public TripsRepository(ApbdContext context)
+    public TripsRepository(ApbdContext context, IClientsRepository clientsRepository)
     {
         _context = context;
+        _clientsRepository = clientsRepository;
     }
 
     public async Task<List<TripDTO>> GetTrips(int page, int pageSize)
@@ -47,34 +49,75 @@ public class TripsRepository : ITripsRepository
         return amount;
     }
 
-    public Task<bool> AssignClientToATrip(int tripId, PostAddClientToTripDTO data)
+    public async Task<ClientTripDTO> AssignClientToATrip(int tripId, PostAddClientToTripDTO data)
     {
-        throw new NotImplementedException();
+        if (await _clientsRepository.ClientWithPeselExists(data.Pesel))
+            throw new Exception("Client with this pesel already exists!");
+        if( await ClientWithPeselAlreadyOnTrip(data.Pesel, tripId))
+            throw new Exception("Client with this pesel is already on the trip!");
+        if(!await TripExists(tripId))
+            throw new Exception("Trip with such id doesnt exist");
+        if (!await TripIsInFuture(tripId))
+            throw new Exception("The assignment for the trip has already finished!");
+        var client = new Client()
+        {
+            FirstName = data.FirstName,
+            LastName = data.LastName,
+            Email = data.Email,
+            Telephone = data.Telephone,
+            Pesel = data.Pesel
+        };
+        await _context.Clients.AddAsync(client);
+        await _context.SaveChangesAsync();
+
+        var clientTrip = new ClientTrip()
+        {
+            IdClient = client.IdClient,
+            IdTrip = tripId,
+            RegisteredAt = DateTime.Now,
+            PaymentDate = data.PaymentDate
+        };
+        await _context.ClientTrips.AddAsync(clientTrip);
+        await _context.SaveChangesAsync();
+        var clientTripDto = new ClientTripDTO()
+        {
+            IdClient = clientTrip.IdClient,
+            IdTrip = clientTrip.IdTrip,
+            PaymentDate = clientTrip.PaymentDate,
+            RegisteredAt = clientTrip.RegisteredAt
+        };
+        
+        return clientTripDto;
+
+
+
+
+
+
     }
 
-   
 
-    public Task<bool> ClientWithPeselAlreadyOnTrip(string pesel, int tripId)
+
+    public async Task<bool> ClientWithPeselAlreadyOnTrip(string pesel, int tripId)
     {
-        throw new NotImplementedException();
 
-        // return _context
-        //     .ClientTrips
-        //     .Where(ct => ct.IdTrip.Equals(tripId))
-        //     .Join(_context.Clients,
-        //         client => client.IdClient,
-        //         trip => trip.IdClient
-        //         ).AnyAsync()
-        //     
+        return await _context.Clients
+            .Join(_context.ClientTrips,
+                client => client.IdClient,
+                clientTrip => clientTrip.IdClient,
+                (client, clientTrip) => new { client, clientTrip })
+            .AnyAsync(ct => ct.client.Pesel.Equals(pesel) && ct.clientTrip.IdTrip.Equals(tripId) );
+
     }
 
-    public Task<bool> TripExists(int tripId)
+    public async Task<bool> TripExists(int tripId)
     {
-        throw new NotImplementedException();
+        return await _context.Trips.AnyAsync(t => t.IdTrip.Equals(tripId));
     }
 
     public Task<bool> TripIsInFuture(int tripId)
     {
-        throw new NotImplementedException();
+        return _context.Trips.AnyAsync(t => t.IdTrip.Equals(tripId) && t.DateFrom > DateTime.Now);
+        
     }
 }

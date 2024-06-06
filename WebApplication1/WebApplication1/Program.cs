@@ -9,8 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
-builder.Services.AddScoped<ITripsRepository, TripsRepository>();
 builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
+builder.Services.AddScoped<ITripsRepository, TripsRepository>();
 
 builder.Services.AddDbContext<ApbdContext>( 
     options => options.UseSqlServer("Name=ConnectionStrings:Docker")); 
