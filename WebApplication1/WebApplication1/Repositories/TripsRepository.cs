@@ -46,4 +46,35 @@ public class TripsRepository : ITripsRepository
         var amount = await _context.Trips.CountAsync();
         return amount;
     }
+
+    public Task<bool> AssignClientToATrip(int tripId, PostAddClientToTripDTO data)
+    {
+        throw new NotImplementedException();
+    }
+
+   
+
+    public Task<bool> ClientWithPeselAlreadyOnTrip(string pesel, int tripId)
+    {
+        throw new NotImplementedException();
+
+        // return _context
+        //     .ClientTrips
+        //     .Where(ct => ct.IdTrip.Equals(tripId))
+        //     .Join(_context.Clients,
+        //         client => client.IdClient,
+        //         trip => trip.IdClient
+        //         ).AnyAsync()
+        //     
+    }
+
+    public Task<bool> TripExists(int tripId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> TripIsInFuture(int tripId)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -18,9 +18,9 @@ public class ClientsRepository(ApbdContext context) : IClientsRepository
 
     public async Task<bool> DeleteClient(int clientId)
     {
-        if (! await this.ClientExists(clientId))
+        if (! await ClientExists(clientId))
             throw new Exception("Client doesn't exist!");
-        if (! await this.ClientDoesntHaveTrips(clientId))
+        if (! await ClientDoesntHaveTrips(clientId))
             throw new Exception("Client has trips associated with them!");
         var clientToRemove = new Client()
         {
@@ -32,5 +32,10 @@ public class ClientsRepository(ApbdContext context) : IClientsRepository
         await context.SaveChangesAsync();
         return true;
 
+    }
+    
+    public async Task<bool> ClientWithPeselExists(string pesel)
+    {
+        return await context.Clients.AnyAsync(c => c.Pesel.Equals(pesel));
     }
 }

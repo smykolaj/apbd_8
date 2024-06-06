@@ -32,6 +32,21 @@ public class TripsController : ControllerBase
         return Ok(output);
     }
 
-    
+    [HttpPost("{tripId}/clients")]
+    public async Task<IActionResult> AssignClientToATrip(int tripId, PostAddClientToTripDTO data)
+    {
+        try
+        {
+            await _tripsRepository.AssignClientToATrip(tripId, data);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+
+        return Ok();
+    }
+
+
 
 }

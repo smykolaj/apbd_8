@@ -7,4 +7,9 @@ public interface ITripsRepository
     Task<List<TripDTO>> GetTrips(int page, int pageSize);
 
     Task<int> GetTripsAmount();
+    Task<bool> AssignClientToATrip(int tripId, PostAddClientToTripDTO data);
+    Task<bool> ClientWithPeselAlreadyOnTrip(string pesel, int tripId);
+    Task<bool> TripExists(int tripId);
+    Task<bool> TripIsInFuture(int tripId);
+    
 }

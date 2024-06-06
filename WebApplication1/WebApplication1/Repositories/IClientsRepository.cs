@@ -5,4 +5,5 @@ public interface IClientsRepository
     Task<bool> ClientExists(int clientId);
     Task<bool> ClientDoesntHaveTrips(int clientId);
     Task<bool> DeleteClient(int clientId);
+    Task<bool> ClientWithPeselExists(string pesel);
 }
